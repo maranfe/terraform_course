@@ -1,2 +1,2 @@
 # terraform_course
-Somente um teste.
+Learning how to create instances on aws with terraform.
