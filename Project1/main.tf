@@ -106,3 +106,29 @@ resource "aws_security_group" "allow_web" {
 }
 
 # 7 - Create a network interface with an ip in the subnet that was created in step 4
+resource "aws_network_interface" "web_server_nic" {
+  subnet_id       = aws_subnet.subnet_1.id
+  private_ips     = ["10.0.1.50"]
+  security_groups = [aws_security_group.allow_web.id]
+}
+
+# 8 - Assign an elastic ip to the network interface created in step 7
+resource "aws_eip" "one" {
+  vpc                       = true
+  network_interface         = aws_network_interface.web_server_nic.id
+  associate_with_private_ip = "10.0.1.50"
+}
+
+# 9 - Create ubuntu server and install/enable apache2
+resource "aws_instance" "web_server_instance" {
+  ami = "ami-013f17f36f8b1fefb"
+  instance_type = "t2.micro"
+  availability_zone = "us-east-1a"
+  key_name = "terraform-key"
+
+  network_interface {
+    device_index = 0
+    network_interface_id = aws_network_interface.web_server_nic.id
+  }
+  
+}
