@@ -38,7 +38,7 @@ resource "aws_route_table" "prod_route_table" {
 
   route {
     ipv6_cidr_block        = "::/0"
-    egress_only_gateway_id = aws_internet_gateway.gw.id
+    gateway_id             = aws_internet_gateway.gw.id
   }
 
   tags = {
@@ -74,7 +74,7 @@ resource "aws_security_group" "allow_web" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [0.0.0.0/0]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -82,7 +82,7 @@ resource "aws_security_group" "allow_web" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [0.0.0.0/0]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -90,7 +90,7 @@ resource "aws_security_group" "allow_web" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [0.0.0.0/0]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -131,4 +131,15 @@ resource "aws_instance" "web_server_instance" {
     network_interface_id = aws_network_interface.web_server_nic.id
   }
   
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt update -y
+              sudo apt install apache2 -y
+              sudo sytemctl start apache2
+              sudo bash -c 'echo Teste do primeiro servidor web > /var/www/html/index.html'
+              EOF
+  tags = {
+    "Name" = "web_server"
+  }
+
 }
